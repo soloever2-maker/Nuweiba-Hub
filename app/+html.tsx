@@ -12,7 +12,6 @@ export default function Root({ children }: PropsWithChildren) {
           content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"
         />
 
-        {/* PWA */}
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#0B3D5E" />
         <meta name="mobile-web-app-capable" content="yes" />
@@ -21,7 +20,6 @@ export default function Root({ children }: PropsWithChildren) {
         <meta name="apple-mobile-web-app-title" content="Nuweiba Hub" />
         <link rel="apple-touch-icon" href="/assets/images/logo.png" />
 
-        {/* SEO */}
         <title>Nuweiba Hub — دليلك لنويبع</title>
         <meta
           name="description"
@@ -35,10 +33,14 @@ export default function Root({ children }: PropsWithChildren) {
         <meta property="og:type" content="website" />
         <meta property="og:image" content="/assets/images/logo.png" />
 
-        {/* App-like web behavior */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
+              @font-face {
+                font-family: 'MaterialIcons';
+                src: url('https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.2.0/Fonts/MaterialIcons.ttf') format('truetype');
+                font-display: swap;
+              }
               html, body {
                 -webkit-text-size-adjust: 100%;
                 overscroll-behavior: none;
@@ -51,29 +53,12 @@ export default function Root({ children }: PropsWithChildren) {
               }
               ::-webkit-scrollbar { display: none; }
               * { scrollbar-width: none; }
-              /* Disable pull-to-refresh */
               body { overscroll-behavior-y: contain; }
-              /* Smooth touch */
               * { -webkit-tap-highlight-color: transparent; }
             `,
           }}
         />
 
-        <link 
-  rel="stylesheet" 
-  href="https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.2.0/Fonts/MaterialIcons.css" 
-/>
-<style
-  dangerouslySetInnerHTML={{
-    __html: `
-      @font-face {
-        font-family: 'MaterialIcons';
-        src: url('https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.2.0/Fonts/MaterialIcons.ttf') format('truetype');
-        font-display: block;
-      }
-    `,
-  }}
-/>
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>
