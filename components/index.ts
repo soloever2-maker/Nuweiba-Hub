@@ -1,6 +1,8 @@
 export { Badge } from './ui/Badge';
 export { StarRating } from './ui/StarRating';
 export { SearchBar } from './ui/SearchBar';
+export { AlertProvider, useAlert } from './ui/AlertProvider';
+export type { AlertButton } from './ui/AlertProvider';
 export { Header } from './layout/Header';
 export { CampCard } from './camps/CampCard';
 export { FilterChips } from './camps/FilterChips';

@@ -1,0 +1,22 @@
+{
+  "name": "Nuweiba Hub — دليلك لنويبع",
+  "short_name": "NuweibHub",
+  "description": "Find camps, transport & local services in Nuweiba, Egypt",
+  "start_url": "/",
+  "id": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#0B3D5E",
+  "background_color": "#F5EDDF",
+  "categories": ["travel", "lifestyle"],
+  "lang": "ar",
+  "dir": "auto",
+  "icons": [
+    {
+      "src": "/assets/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

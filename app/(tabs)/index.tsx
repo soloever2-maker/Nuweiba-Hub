@@ -10,6 +10,8 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from '@/constants/theme';
 import { useLanguage } from '@/hooks/useLanguage';
 import { CAMPS } from '@/data/camps';
+import { TRANSPORT } from '@/data/transport';
+import { SERVICES } from '@/data/services';
 import { CampCard, SearchBar, Header } from '@/components';
 
 const CATEGORY_ITEMS = [
@@ -68,9 +70,9 @@ export default function HomeScreen() {
 
         {/* Quick Stats */}
         <View style={[styles.statsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <StatItem value="6" label={t('campsCount')} icon="night-shelter" />
-          <StatItem value="6" label={t('transportCount')} icon="directions-bus" />
-          <StatItem value="9" label={t('servicesCount')} icon="medical-services" />
+          <StatItem value={String(CAMPS.length)} label={t('campsCount')} icon="night-shelter" />
+          <StatItem value={String(TRANSPORT.length)} label={t('transportCount')} icon="directions-bus" />
+          <StatItem value={String(SERVICES.length)} label={t('servicesCount')} icon="medical-services" />
         </View>
 
         {/* Category Grid */}

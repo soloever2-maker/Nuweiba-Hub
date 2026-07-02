@@ -1,4 +1,4 @@
-import { AlertProvider } from '@/template';
+import { AlertProvider } from '@/components/ui/AlertProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { LanguageProvider } from '@/contexts/LanguageContext';

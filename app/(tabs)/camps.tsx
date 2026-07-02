@@ -124,6 +124,7 @@ export default function CampsScreen() {
             </Text>
           </View>
         }
+        renderItem={({ item }) => <CampCard camp={item} />}
         ListEmptyComponent={
           <View style={styles.empty}>
             <MaterialIcons name="search-off" size={64} color={Colors.textMuted} />
