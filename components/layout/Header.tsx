@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { View, Text, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { MaterialIcons } from '@expo/vector-icons';
 import { Colors, Spacing, FontSize, FontWeight, Shadows } from '@/constants/theme';
 import { useLanguage } from '@/hooks/useLanguage';
 
@@ -26,18 +27,23 @@ export const Header = memo(({ showBack, onBack, title, transparent }: HeaderProp
       <View style={[styles.inner, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
         {showBack ? (
           <Pressable onPress={onBack} style={styles.backBtn} hitSlop={8}>
-            <Text style={[styles.backText, { color: transparent ? Colors.white : Colors.textPrimary }]}>
-              {isRTL ? '→' : '←'}
-            </Text>
+            <MaterialIcons
+              name={isRTL ? 'arrow-forward' : 'arrow-back'}
+              size={22}
+              color={transparent ? Colors.white : Colors.textPrimary}
+            />
           </Pressable>
         ) : (
-          <View style={styles.logo}>
-            <Text style={[styles.logoText, { color: transparent ? Colors.white : Colors.night }]}>
-              🌊
-            </Text>
-            <Text style={[styles.logoName, { color: transparent ? Colors.white : Colors.night }]}>
-              {t('appName')}
-            </Text>
+          <View style={[styles.logo, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <Text style={[styles.logoEmoji]}>🌊</Text>
+            <View>
+              <Text style={[styles.logoName, { color: transparent ? Colors.white : Colors.night }]}>
+                {t('appName')}
+              </Text>
+              <Text style={[styles.logoTagline, { color: transparent ? 'rgba(255,255,255,0.7)' : Colors.textMuted }]}>
+                {t('appTagline')}
+              </Text>
+            </View>
           </View>
         )}
 
@@ -54,7 +60,15 @@ export const Header = memo(({ showBack, onBack, title, transparent }: HeaderProp
         ) : null}
 
         <View style={styles.actions}>
-          <Pressable onPress={toggleLanguage} style={styles.langBtn} hitSlop={8}>
+          <Pressable
+            onPress={toggleLanguage}
+            style={({ pressed }) => [
+              styles.langBtn,
+              transparent ? styles.langBtnTransparent : styles.langBtnSolid,
+              pressed && { opacity: 0.8 },
+            ]}
+            hitSlop={8}
+          >
             <Text style={[styles.langText, { color: transparent ? Colors.white : Colors.ocean }]}>
               {language === 'ar' ? t('switchToEn') : t('switchToAr')}
             </Text>
@@ -90,16 +104,21 @@ const styles = StyleSheet.create({
     minHeight: 44,
   },
   logo: {
-    flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.xs,
+    gap: Spacing.sm,
   },
-  logoText: {
-    fontSize: FontSize.xl,
+  logoEmoji: {
+    fontSize: FontSize.xxl,
   },
   logoName: {
     fontSize: FontSize.lg,
     fontWeight: FontWeight.bold,
+    letterSpacing: -0.3,
+  },
+  logoTagline: {
+    fontSize: FontSize.xs - 1,
+    fontWeight: FontWeight.medium,
+    marginTop: -2,
   },
   title: {
     flex: 1,
@@ -113,12 +132,18 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   langBtn: {
-    backgroundColor: Colors.ocean + '18',
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.xs + 2,
     borderRadius: 20,
     borderWidth: 1.5,
+  },
+  langBtnSolid: {
+    backgroundColor: Colors.ocean + '12',
     borderColor: Colors.ocean + '44',
+  },
+  langBtnTransparent: {
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderColor: 'rgba(255,255,255,0.35)',
   },
   langText: {
     fontSize: FontSize.sm,
@@ -126,9 +151,5 @@ const styles = StyleSheet.create({
   },
   backBtn: {
     padding: Spacing.sm,
-  },
-  backText: {
-    fontSize: FontSize.xl,
-    fontWeight: FontWeight.bold,
   },
 });

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
-  View, Text, ScrollView, Pressable, StyleSheet, Linking, StatusBar,
+  View, Text, ScrollView, Pressable, StyleSheet, Linking, StatusBar, Animated,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -26,8 +26,33 @@ export default function HomeScreen() {
   const router = useRouter();
   const { t, isRTL } = useLanguage();
   const [search, setSearch] = useState('');
+  const heroFade = useRef(new Animated.Value(0)).current;
+  const statsSlide = useRef(new Animated.Value(30)).current;
+  const statsFade = useRef(new Animated.Value(0)).current;
 
   const featuredCamps = CAMPS.filter((c) => c.isFeatured);
+
+  useEffect(() => {
+    Animated.sequence([
+      Animated.timing(heroFade, {
+        toValue: 1,
+        duration: 600,
+        useNativeDriver: true,
+      }),
+      Animated.parallel([
+        Animated.timing(statsFade, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+        Animated.timing(statsSlide, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: true,
+        }),
+      ]),
+    ]).start();
+  }, []);
 
   return (
     <View style={styles.root}>
@@ -37,10 +62,10 @@ export default function HomeScreen() {
       <ScrollView
         style={styles.scroll}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 24 }}
+        contentContainerStyle={{ paddingBottom: 32 }}
       >
         {/* Hero Section */}
-        <View style={styles.hero}>
+        <Animated.View style={[styles.hero, { opacity: heroFade }]}>
           <Image
             source={require('@/assets/images/hero-nuweiba.jpg')}
             style={StyleSheet.absoluteFillObject}
@@ -48,12 +73,12 @@ export default function HomeScreen() {
             transition={300}
           />
           <LinearGradient
-            colors={['rgba(11,61,94,0.35)', 'rgba(11,61,94,0.7)']}
+            colors={['rgba(11,61,94,0.2)', 'rgba(11,61,94,0.75)']}
             style={StyleSheet.absoluteFillObject}
           />
-          <View style={[styles.heroContent, { paddingTop: insets.top + 64 }]}>
+          <View style={[styles.heroContent, { paddingTop: insets.top + 72 }]}>
             <Text style={[styles.heroTitle, { textAlign: isRTL ? 'right' : 'left' }]}>
-              🌊 {t('exploreNuweiba')}
+              {t('exploreNuweiba')}
             </Text>
             <Text style={[styles.heroSubtitle, { textAlign: isRTL ? 'right' : 'left' }]}>
               {t('heroSubtitle')}
@@ -66,31 +91,40 @@ export default function HomeScreen() {
               style={styles.searchBar}
             />
           </View>
-        </View>
+        </Animated.View>
 
         {/* Quick Stats */}
-        <View style={[styles.statsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <StatItem value={String(CAMPS.length)} label={t('campsCount')} icon="night-shelter" />
-          <StatItem value={String(TRANSPORT.length)} label={t('transportCount')} icon="directions-bus" />
-          <StatItem value={String(SERVICES.length)} label={t('servicesCount')} icon="medical-services" />
-        </View>
+        <Animated.View
+          style={[
+            styles.statsRow,
+            { flexDirection: isRTL ? 'row-reverse' : 'row', opacity: statsFade, transform: [{ translateY: statsSlide }] },
+          ]}
+        >
+          <StatItem value={CAMPS.length} label={t('campsCount')} icon="night-shelter" color={Colors.ocean} />
+          <View style={styles.statDivider} />
+          <StatItem value={TRANSPORT.length} label={t('transportCount')} icon="directions-bus" color={Colors.sunset} />
+          <View style={styles.statDivider} />
+          <StatItem value={SERVICES.length} label={t('servicesCount')} icon="medical-services" color={Colors.error} />
+        </Animated.View>
 
         {/* Category Grid */}
         <View style={styles.section}>
-          <SectionHeader title={t('categoryCamps')} onViewAll={undefined} />
+          <SectionHeader title={t('categoryCamps')} isRTL={isRTL} />
           <View style={styles.categoryGrid}>
-            {CATEGORY_ITEMS.map((item) => (
+            {CATEGORY_ITEMS.map((item, i) => (
               <Pressable
                 key={item.key}
                 style={({ pressed }) => [
                   styles.categoryCard,
                   { backgroundColor: item.bg },
-                  pressed && { opacity: 0.85, transform: [{ scale: 0.97 }] },
+                  pressed && { opacity: 0.85, transform: [{ scale: 0.96 }] },
                 ]}
                 onPress={() => router.push(item.route as any)}
               >
-                <MaterialIcons name={item.icon as any} size={32} color={item.color} />
-                <Text style={[styles.categoryLabel, { color: item.color, textAlign: 'center' }]}>
+                <View style={[styles.categoryIconWrap, { backgroundColor: item.color + '22' }]}>
+                  <MaterialIcons name={item.icon as any} size={28} color={item.color} />
+                </View>
+                <Text style={[styles.categoryLabel, { color: item.color }]}>
                   {t(`category${item.key.charAt(0).toUpperCase() + item.key.slice(1)}` as any)}
                 </Text>
               </Pressable>
@@ -106,27 +140,25 @@ export default function HomeScreen() {
             isRTL={isRTL}
             viewAllLabel={t('viewAll')}
           />
-          <View style={styles.featuredScroll}>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{
-                flexDirection: isRTL ? 'row-reverse' : 'row',
-                paddingHorizontal: Spacing.md,
-                gap: Spacing.md,
-              }}
-            >
-              {featuredCamps.map((camp) => (
-                <CampCard key={camp.id} camp={camp} horizontal style={{ width: 240 }} />
-              ))}
-            </ScrollView>
-          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              flexDirection: isRTL ? 'row-reverse' : 'row',
+              paddingHorizontal: Spacing.md,
+              gap: Spacing.md,
+            }}
+          >
+            {featuredCamps.map((camp, i) => (
+              <CampCard key={camp.id} camp={camp} horizontal index={i} style={{ width: 260 }} />
+            ))}
+          </ScrollView>
         </View>
 
         {/* WhatsApp Community */}
         <View style={[styles.section, { paddingHorizontal: Spacing.md }]}>
           <Pressable
-            style={({ pressed }) => [styles.whatsappBtn, pressed && { opacity: 0.85 }]}
+            style={({ pressed }) => [styles.whatsappBtn, pressed && { opacity: 0.85, transform: [{ scale: 0.98 }] }]}
             onPress={() => Linking.openURL('https://wa.me/+201000000000')}
           >
             <View style={styles.whatsappIcon}>
@@ -148,10 +180,25 @@ export default function HomeScreen() {
   );
 }
 
-function StatItem({ value, label, icon }: { value: string; label: string; icon: string }) {
+function StatItem({ value, label, icon, color }: { value: number; label: string; icon: string; color: string }) {
+  const countAnim = useRef(new Animated.Value(0)).current;
+  const [displayVal, setDisplayVal] = useState(0);
+
+  useEffect(() => {
+    countAnim.addListener(({ value: v }) => setDisplayVal(Math.round(v)));
+    Animated.timing(countAnim, {
+      toValue: value,
+      duration: 800,
+      delay: 500,
+      useNativeDriver: false,
+    }).start();
+    return () => countAnim.removeAllListeners();
+  }, [value]);
+
   return (
     <View style={styles.statItem}>
-      <Text style={styles.statValue}>{value}</Text>
+      <MaterialIcons name={icon as any} size={20} color={color} style={{ marginBottom: 2 }} />
+      <Text style={[styles.statValue, { color }]}>{displayVal}</Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
@@ -172,8 +219,9 @@ function SectionHeader({
     <View style={[styles.sectionHeader, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
       <Text style={[styles.sectionTitle, { textAlign: isRTL ? 'right' : 'left' }]}>{title}</Text>
       {onViewAll ? (
-        <Pressable onPress={onViewAll}>
+        <Pressable onPress={onViewAll} style={styles.viewAllBtn}>
           <Text style={styles.viewAll}>{viewAllLabel}</Text>
+          <MaterialIcons name={isRTL ? 'chevron-left' : 'chevron-right'} size={16} color={Colors.ocean} />
         </Pressable>
       ) : null}
     </View>
@@ -189,7 +237,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   hero: {
-    height: 320,
+    height: 340,
     position: 'relative',
     justifyContent: 'flex-end',
   },
@@ -198,14 +246,16 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   heroTitle: {
-    fontSize: FontSize.xxxl,
+    fontSize: FontSize.xxxl + 2,
     fontWeight: FontWeight.extrabold,
     color: Colors.white,
+    letterSpacing: -0.5,
   },
   heroSubtitle: {
     fontSize: FontSize.md,
-    color: 'rgba(255,255,255,0.85)',
+    color: 'rgba(255,255,255,0.88)',
     marginBottom: Spacing.xs,
+    lineHeight: 22,
   },
   searchBar: {
     backgroundColor: 'rgba(255,255,255,0.95)',
@@ -213,18 +263,24 @@ const styles = StyleSheet.create({
   },
   statsRow: {
     backgroundColor: Colors.night,
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md + 4,
+    paddingHorizontal: Spacing.lg,
     justifyContent: 'space-around',
+    alignItems: 'center',
   },
   statItem: {
     alignItems: 'center',
     gap: 2,
+    flex: 1,
+  },
+  statDivider: {
+    width: 1,
+    height: 36,
+    backgroundColor: 'rgba(255,255,255,0.15)',
   },
   statValue: {
     fontSize: FontSize.xxl,
     fontWeight: FontWeight.extrabold,
-    color: Colors.sand,
   },
   statLabel: {
     fontSize: FontSize.xs,
@@ -246,6 +302,11 @@ const styles = StyleSheet.create({
     fontWeight: FontWeight.bold,
     color: Colors.night,
   },
+  viewAllBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
   viewAll: {
     fontSize: FontSize.sm,
     color: Colors.ocean,
@@ -266,12 +327,17 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     ...Shadows.sm,
   },
+  categoryIconWrap: {
+    width: 52,
+    height: 52,
+    borderRadius: BorderRadius.md + 4,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   categoryLabel: {
     fontSize: FontSize.md,
     fontWeight: FontWeight.bold,
-  },
-  featuredScroll: {
-    minHeight: 300,
+    textAlign: 'center',
   },
   whatsappBtn: {
     flexDirection: 'row',

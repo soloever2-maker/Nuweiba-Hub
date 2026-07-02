@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { ScrollView, Pressable, Text, StyleSheet, View } from 'react-native';
+import { ScrollView, Pressable, Text, StyleSheet, View, Animated } from 'react-native';
 import { Colors, Spacing, BorderRadius, FontSize, FontWeight } from '@/constants/theme';
 
 interface Chip {
@@ -31,7 +31,11 @@ export const FilterChips = memo(({ chips, selected, onToggle, isRTL }: FilterChi
             <Pressable
               key={chip.key}
               onPress={() => onToggle(chip.key)}
-              style={[styles.chip, isSelected ? styles.chipSelected : styles.chipDefault]}
+              style={({ pressed }) => [
+                styles.chip,
+                isSelected ? styles.chipSelected : styles.chipDefault,
+                pressed && { transform: [{ scale: 0.95 }] },
+              ]}
             >
               <Text style={[styles.label, isSelected ? styles.labelSelected : styles.labelDefault]}>
                 {chip.label}
@@ -73,6 +77,11 @@ const styles = StyleSheet.create({
   chipSelected: {
     backgroundColor: Colors.ocean,
     borderColor: Colors.ocean,
+    shadowColor: Colors.ocean,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
   label: {
     fontSize: FontSize.sm,

@@ -76,6 +76,7 @@ export default function CampsScreen() {
         columnWrapperStyle={styles.row}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        renderItem={({ item, index }) => <CampCard camp={item} index={index} />}
         ListHeaderComponent={
           <View>
             <View style={[styles.titleSection, { alignItems: isRTL ? 'flex-end' : 'flex-start' }]}>
@@ -124,7 +125,6 @@ export default function CampsScreen() {
             </Text>
           </View>
         }
-        renderItem={({ item }) => <CampCard camp={item} />}
         ListEmptyComponent={
           <View style={styles.empty}>
             <MaterialIcons name="search-off" size={64} color={Colors.textMuted} />

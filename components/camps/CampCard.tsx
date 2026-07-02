@@ -1,6 +1,7 @@
-import React, { memo } from 'react';
-import { View, Text, StyleSheet, Pressable, ViewStyle } from 'react-native';
+import React, { memo, useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, ViewStyle, Animated } from 'react-native';
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { Colors, Spacing, BorderRadius, FontSize, FontWeight, Shadows } from '@/constants/theme';
 import { Camp, CampTag } from '@/data/camps';
@@ -12,6 +13,7 @@ interface CampCardProps {
   camp: Camp;
   style?: ViewStyle;
   horizontal?: boolean;
+  index?: number;
 }
 
 const AREA_LABELS: Record<string, { en: string; ar: string }> = {
@@ -21,66 +23,92 @@ const AREA_LABELS: Record<string, { en: string; ar: string }> = {
   south: { en: 'South Nuweiba', ar: 'جنوب نويبع' },
 };
 
-export const CampCard = memo(({ camp, style, horizontal }: CampCardProps) => {
+export const CampCard = memo(({ camp, style, horizontal, index = 0 }: CampCardProps) => {
   const router = useRouter();
   const { language, isRTL, t } = useLanguage();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const slideAnim = useRef(new Animated.Value(20)).current;
+
+  useEffect(() => {
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        delay: index * 80,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 400,
+        delay: index * 80,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, []);
 
   const name = language === 'ar' ? camp.nameAr : camp.nameEn;
   const area = language === 'ar' ? AREA_LABELS[camp.area]?.ar : AREA_LABELS[camp.area]?.en;
 
   return (
-    <Pressable
-      style={({ pressed }) => [
-        styles.card,
-        horizontal ? styles.horizontal : styles.vertical,
-        pressed && styles.pressed,
-        style,
-      ]}
-      onPress={() => router.push(`/camp/${camp.id}`)}
-    >
-      <View style={horizontal ? styles.imageWrapperH : styles.imageWrapperV}>
-        <Image
-          source={{ uri: camp.images[0] }}
-          style={styles.image}
-          contentFit="cover"
-          transition={200}
-        />
-        {camp.isFeatured ? (
-          <View style={styles.featuredBadge}>
-            <Text style={styles.featuredText}>⭐</Text>
+    <Animated.View style={{ opacity: fadeAnim, transform: [{ translateY: slideAnim }], flex: horizontal ? undefined : 1 }}>
+      <Pressable
+        style={({ pressed }) => [
+          styles.card,
+          horizontal ? styles.horizontal : styles.vertical,
+          pressed && styles.pressed,
+          style,
+        ]}
+        onPress={() => router.push(`/camp/${camp.id}`)}
+      >
+        <View style={horizontal ? styles.imageWrapperH : styles.imageWrapperV}>
+          <Image
+            source={{ uri: camp.images[0] }}
+            style={styles.image}
+            contentFit="cover"
+            transition={300}
+            placeholder={{ blurhash: 'LGF5?xYk^6#M@-5c,1J5@[or[Q6.' }}
+          />
+          {/* Gradient overlay */}
+          <LinearGradient
+            colors={['transparent', 'rgba(11,61,94,0.55)']}
+            style={styles.imageGradient}
+          />
+          {/* Price badge on image */}
+          <View style={[styles.priceBadge, isRTL ? { left: Spacing.sm } : { right: Spacing.sm }]}>
+            <Text style={styles.priceBadgeText}>
+              {camp.priceMin} {t('egp')}
+            </Text>
           </View>
-        ) : null}
-      </View>
+          {camp.isFeatured ? (
+            <View style={[styles.featuredBadge, isRTL ? { right: Spacing.sm } : { left: Spacing.sm }]}>
+              <Text style={styles.featuredText}>⭐</Text>
+            </View>
+          ) : null}
+          {/* Rating on image */}
+          <View style={styles.ratingOverlay}>
+            <StarRating rating={camp.rating} reviewCount={camp.reviewCount} size={12} />
+          </View>
+        </View>
 
-      <View style={[styles.content, isRTL ? styles.contentRTL : {}]}>
-        <Text style={[styles.name, { textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>
-          {name}
-        </Text>
-
-        <View style={[styles.row, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <Text style={styles.area} numberOfLines={1}>
-            📍 {area}
+        <View style={[styles.content, isRTL ? styles.contentRTL : {}]}>
+          <Text style={[styles.name, { textAlign: isRTL ? 'right' : 'left' }]} numberOfLines={1}>
+            {name}
           </Text>
-        </View>
 
-        <View style={[styles.row, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <StarRating rating={camp.rating} reviewCount={camp.reviewCount} />
-        </View>
+          <View style={[styles.row, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            <Text style={styles.area} numberOfLines={1}>
+              📍 {area}
+            </Text>
+          </View>
 
-        <View style={[styles.tagsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          {camp.tags.slice(0, 2).map((tag) => (
-            <Badge key={tag} label={t(`filter${tag.charAt(0).toUpperCase() + tag.slice(1)}` as any)} variant={tag as CampTag} size="sm" />
-          ))}
+          <View style={[styles.tagsRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
+            {camp.tags.slice(0, 2).map((tag) => (
+              <Badge key={tag} label={t(`filter${tag.charAt(0).toUpperCase() + tag.slice(1)}` as any)} variant={tag as CampTag} size="sm" />
+            ))}
+          </View>
         </View>
-
-        <View style={[styles.priceRow, { flexDirection: isRTL ? 'row-reverse' : 'row' }]}>
-          <Text style={styles.price}>
-            {t('from')} {camp.priceMin} {t('egp')}
-          </Text>
-          <Text style={styles.priceNight}>{t('perNight')}</Text>
-        </View>
-      </View>
-    </Pressable>
+      </Pressable>
+    </Animated.View>
   );
 });
 
@@ -95,7 +123,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   horizontal: {
-    width: 240,
+    width: 260,
     flexDirection: 'column',
   },
   imageWrapperV: {
@@ -105,18 +133,37 @@ const styles = StyleSheet.create({
   },
   imageWrapperH: {
     width: '100%',
-    height: 140,
+    height: 150,
     position: 'relative',
   },
   image: {
     width: '100%',
     height: '100%',
   },
+  imageGradient: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '50%',
+  },
+  priceBadge: {
+    position: 'absolute',
+    bottom: Spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.sm,
+  },
+  priceBadgeText: {
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.extrabold,
+    color: Colors.ocean,
+  },
   featuredBadge: {
     position: 'absolute',
     top: Spacing.sm,
-    right: Spacing.sm,
-    backgroundColor: Colors.sunset,
+    backgroundColor: 'rgba(216,90,48,0.9)',
     borderRadius: BorderRadius.full,
     width: 28,
     height: 28,
@@ -124,11 +171,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   featuredText: {
-    fontSize: 14,
+    fontSize: 13,
+  },
+  ratingOverlay: {
+    position: 'absolute',
+    bottom: Spacing.sm,
+    left: Spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.92)',
+    paddingHorizontal: Spacing.xs + 2,
+    paddingVertical: 2,
+    borderRadius: BorderRadius.sm,
   },
   content: {
-    padding: Spacing.md,
-    gap: Spacing.xs,
+    padding: Spacing.sm + 2,
+    gap: 3,
   },
   contentRTL: {
     alignItems: 'flex-end',
@@ -144,7 +200,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   area: {
-    fontSize: FontSize.sm,
+    fontSize: FontSize.xs,
     color: Colors.textSecondary,
   },
   tagsRow: {
@@ -152,22 +208,8 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
     marginTop: 2,
   },
-  priceRow: {
-    alignItems: 'baseline',
-    gap: 3,
-    marginTop: Spacing.xs,
-  },
-  price: {
-    fontSize: FontSize.md,
-    fontWeight: FontWeight.bold,
-    color: Colors.ocean,
-  },
-  priceNight: {
-    fontSize: FontSize.xs,
-    color: Colors.textMuted,
-  },
   pressed: {
-    opacity: 0.88,
-    transform: [{ scale: 0.98 }],
+    opacity: 0.92,
+    transform: [{ scale: 0.97 }],
   },
 });
