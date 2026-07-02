@@ -35,23 +35,25 @@ export default function Root({ children }: PropsWithChildren) {
         <meta property="og:type" content="website" />
         <meta property="og:image" content="/assets/images/logo.png" />
 
-        {/* Preload Material Icons font from CDN */}
+        {/* Preload local Material Icons font */}
         <link
           rel="preload"
-          href="https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.2.0/Fonts/MaterialIcons.ttf"
+          href="/fonts/MaterialIcons.ttf"
           as="font"
           type="font/ttf"
           crossOrigin="anonymous"
         />
 
-        {/* App-like web behavior + Icon font */}
+        {/* App styles + Icon font registered locally */}
         <style
           dangerouslySetInnerHTML={{
             __html: `
               @font-face {
                 font-family: 'MaterialIcons';
-                src: url('https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.2.0/Fonts/MaterialIcons.ttf') format('truetype');
-                font-display: swap;
+                src: url('/fonts/MaterialIcons.ttf') format('truetype');
+                font-display: block;
+                font-weight: normal;
+                font-style: normal;
               }
               html, body {
                 -webkit-text-size-adjust: 100%;
@@ -65,9 +67,7 @@ export default function Root({ children }: PropsWithChildren) {
               }
               ::-webkit-scrollbar { display: none; }
               * { scrollbar-width: none; }
-              /* Disable pull-to-refresh */
               body { overscroll-behavior-y: contain; }
-              /* Smooth touch */
               * { -webkit-tap-highlight-color: transparent; }
             `,
           }}
