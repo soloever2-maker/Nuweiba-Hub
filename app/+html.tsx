@@ -59,6 +59,21 @@ export default function Root({ children }: PropsWithChildren) {
           }}
         />
 
+        <link 
+  rel="stylesheet" 
+  href="https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.2.0/Fonts/MaterialIcons.css" 
+/>
+<style
+  dangerouslySetInnerHTML={{
+    __html: `
+      @font-face {
+        font-family: 'MaterialIcons';
+        src: url('https://cdn.jsdelivr.net/npm/react-native-vector-icons@10.2.0/Fonts/MaterialIcons.ttf') format('truetype');
+        font-display: block;
+      }
+    `,
+  }}
+/>
         <ScrollViewStyleReset />
       </head>
       <body>{children}</body>
