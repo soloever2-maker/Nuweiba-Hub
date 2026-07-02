@@ -1,9 +1,27 @@
+import { useEffect } from 'react';
 import { AlertProvider } from '@/components/ui/AlertProvider';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Stack } from 'expo-router';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { useFonts } from 'expo-font';
+import * as SplashScreen from 'expo-splash-screen';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    MaterialIcons: require('@/assets/fonts/MaterialIcons.ttf'),
+    SpaceMono: require('@/assets/fonts/SpaceMono-Regular.ttf'),
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      SplashScreen.hideAsync().catch(() => {});
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
   return (
     <AlertProvider>
       <SafeAreaProvider>
