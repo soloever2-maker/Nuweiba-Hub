@@ -1,1 +1,3 @@
-/assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/* /MaterialIcons.ttf 200
+# expo-router static export generates real HTML pages, so no SPA redirect needed.
+# Fallback for any unmatched route only:
+/*    /+not-found.html   404
