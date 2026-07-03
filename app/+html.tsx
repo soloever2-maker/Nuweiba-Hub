@@ -33,6 +33,11 @@ export default function Root({ children }: PropsWithChildren) {
         <style
           dangerouslySetInnerHTML={{
             __html: `
+              @font-face {
+                font-family: 'MaterialIcons';
+                src: url('/fonts-MaterialIcons.ttf') format('truetype');
+                font-display: block;
+              }
               html, body {
                 -webkit-text-size-adjust: 100%;
                 overscroll-behavior: none;
